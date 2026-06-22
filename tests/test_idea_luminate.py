@@ -1,24 +1,46 @@
-from idea_luminate import Idea, validate_idea, provide_feedback, load_ideas_from_json
+import pytest
+from idea_luminate import Idea, IdeaDatabase, load_ideas_from_json
 
-def test_validate_idea():
-    idea = Idea(name="Test Idea", description="Test Description", market_demand=10)
-    assert validate_idea(idea) == True
+def test_add_idea():
+    db = IdeaDatabase()
+    idea = Idea(1, 'Test Idea', 'Tech', 'Python', 'Validated', 10, 100)
+    db.add_idea(idea)
+    assert len(db.ideas) == 1
 
-def test_validate_idea_zero_demand():
-    idea = Idea(name="Test Idea", description="Test Description", market_demand=0)
-    assert validate_idea(idea) == False
+def test_search():
+    db = IdeaDatabase()
+    idea1 = Idea(1, 'Test Idea', 'Tech', 'Python', 'Validated', 10, 100)
+    idea2 = Idea(2, 'Another Idea', 'Finance', 'Java', 'Not Validated', 5, 50)
+    db.add_idea(idea1)
+    db.add_idea(idea2)
+    results = db.search('Test')
+    assert len(results) == 1
+    assert results[0].title == 'Test Idea'
 
-def test_provide_feedback():
-    idea = Idea(name="Test Idea", description="Test Description", market_demand=10)
-    assert provide_feedback(idea) == "Idea 'Test Idea' is feasible with a market demand of 10"
+def test_get_idea():
+    db = IdeaDatabase()
+    idea = Idea(1, 'Test Idea', 'Tech', 'Python', 'Validated', 10, 100)
+    db.add_idea(idea)
+    retrieved_idea = db.get_idea(1)
+    assert retrieved_idea.title == 'Test Idea'
 
-def test_provide_feedback_zero_demand():
-    idea = Idea(name="Test Idea", description="Test Description", market_demand=0)
-    assert provide_feedback(idea) == "Idea 'Test Idea' is not feasible due to low market demand"
+def test_bookmark_idea():
+    db = IdeaDatabase()
+    idea = Idea(1, 'Test Idea', 'Tech', 'Python', 'Validated', 10, 100)
+    db.add_idea(idea)
+    db.bookmark_idea(1, 1)
+    bookmarks = db.get_bookmarks(1)
+    assert len(bookmarks) == 1
+    assert bookmarks[0].title == 'Test Idea'
 
 def test_load_ideas_from_json():
-    json_data = '[{"name": "Idea 1", "description": "Description 1", "market_demand": 10}, {"name": "Idea 2", "description": "Description 2", "market_demand": 0}]'
-    ideas = load_ideas_from_json(json_data)
+    data = {
+        'ideas': [
+            {'id': 1, 'title': 'Test Idea', 'industry': 'Tech', 'tech_stack': 'Python', 'validation_status': 'Validated', 'early_adopters': 10, 'revenue_signals': 100},
+            {'id': 2, 'title': 'Another Idea', 'industry': 'Finance', 'tech_stack': 'Java', 'validation_status': 'Not Validated', 'early_adopters': 5, 'revenue_signals': 50}
+        ]
+    }
+    ideas = load_ideas_from_json(data)
     assert len(ideas) == 2
-    assert ideas[0].name == "Idea 1"
-    assert ideas[1].name == "Idea 2"
+    assert ideas[0].title == 'Test Idea'
+    assert ideas[1].title == 'Another Idea'

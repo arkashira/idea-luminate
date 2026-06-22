@@ -1,14 +1,16 @@
-# Validation Score Model
+# Idea Luminate Database
 
-This project calculates a validation score for an idea based on its trend, Reddit volume, and sentiment.
-The score is a combination of these factors, weighted to produce a score between 0 and 100.
+A database of pre-validated software ideas.
 
 ## Usage
 
-To use this project, create an instance of the `Idea` class and pass it to the `validate_idea` function.
-The function returns a dictionary containing the validation score and a brief explanation of the contributing factors.
+1. Create an instance of the `IdeaDatabase` class.
+2. Add ideas to the database using the `add_idea` method.
+3. Search for ideas using the `search` method.
+4. Get an idea by its ID using the `get_idea` method.
+5. Bookmark an idea for a user using the `bookmark_idea` method.
+6. Get a user's bookmarks using the `get_bookmarks` method.
 
 ## Testing
 
-To run the tests, use the `pytest` command.
-The tests cover the happy path and edge cases, including zero and maximum values for the input factors.
+Run the tests using `pytest`.

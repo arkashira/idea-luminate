@@ -3,12 +3,12 @@ requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry]
-name = "validation-score"
+name = "idea-luminate"
 version = "1.0.0"
-description = ""
+description = "Idea Luminate Database"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
