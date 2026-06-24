@@ -1,54 +1,65 @@
 import json
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import Dict
 
 @dataclass
 class Idea:
-    id: int
-    title: str
-    industry: str
-    tech_stack: str
-    validation_status: str
-    early_adopters: int
-    revenue_signals: int
+    problem: str
+    target_user: str
+    pain_severity: str
+    existing_solutions: str
+    unique_angle: str
 
-class IdeaDatabase:
+class IdeaLuminate:
     def __init__(self):
-        self.ideas = []
-        self.bookmarks = {}
+        self.steps = [
+            "Problem",
+            "Target User",
+            "Pain Severity",
+            "Existing Solutions",
+            "Unique Angle"
+        ]
+        self.current_step = 0
+        self.idea = Idea("", "", "", "", "")
 
-    def add_idea(self, idea: Idea):
-        self.ideas.append(idea)
+    def validate_input(self, input_str: str) -> bool:
+        return input_str.strip() != "" and len(input_str) <= 200
 
-    def search(self, query: str) -> List[Idea]:
-        return [idea for idea in self.ideas if query.lower() in idea.title.lower() or query.lower() in idea.industry.lower() or query.lower() in idea.tech_stack.lower()]
+    def ask_question(self, question: str) -> str:
+        while True:
+            user_input = input(question)
+            if self.validate_input(user_input):
+                return user_input
+            print("Invalid input. Please enter a non-empty string with a maximum of 200 characters.")
 
-    def get_idea(self, id: int) -> Idea:
-        for idea in self.ideas:
-            if idea.id == id:
-                return idea
-        return None
+    def run_wizard(self) -> Idea:
+        for i, step in enumerate(self.steps):
+            self.current_step = i
+            if step == "Problem":
+                self.idea.problem = self.ask_question("What is the problem you're trying to solve? ")
+            elif step == "Target User":
+                self.idea.target_user = self.ask_question("Who is the target user for this solution? ")
+            elif step == "Pain Severity":
+                self.idea.pain_severity = self.ask_question("How severe is the pain point for the target user? ")
+            elif step == "Existing Solutions":
+                self.idea.existing_solutions = self.ask_question("What existing solutions are there for this problem? ")
+            elif step == "Unique Angle":
+                self.idea.unique_angle = self.ask_question("What's the unique angle for your solution? ")
+            print(f"Step {i+1} of {len(self.steps)} completed.")
+        return self.idea
 
-    def bookmark_idea(self, user_id: int, idea_id: int):
-        if user_id not in self.bookmarks:
-            self.bookmarks[user_id] = []
-        self.bookmarks[user_id].append(idea_id)
+    def display_summary(self, idea: Idea) -> None:
+        print("Summary:")
+        print(f"Problem: {idea.problem}")
+        print(f"Target User: {idea.target_user}")
+        print(f"Pain Severity: {idea.pain_severity}")
+        print(f"Existing Solutions: {idea.existing_solutions}")
+        print(f"Unique Angle: {idea.unique_angle}")
 
-    def get_bookmarks(self, user_id: int) -> List[Idea]:
-        bookmarks = self.bookmarks.get(user_id, [])
-        return [idea for idea in self.ideas if idea.id in bookmarks]
+def main() -> None:
+    idea_luminate = IdeaLuminate()
+    idea = idea_luminate.run_wizard()
+    idea_luminate.display_summary(idea)
 
-def load_ideas_from_json(data: Dict) -> List[Idea]:
-    ideas = []
-    for idea_data in data['ideas']:
-        idea = Idea(
-            id=idea_data['id'],
-            title=idea_data['title'],
-            industry=idea_data['industry'],
-            tech_stack=idea_data['tech_stack'],
-            validation_status=idea_data['validation_status'],
-            early_adopters=idea_data['early_adopters'],
-            revenue_signals=idea_data['revenue_signals']
-        )
-        ideas.append(idea)
-    return ideas
+if __name__ == "__main__":
+    main()
