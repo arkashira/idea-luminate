@@ -1,55 +1,39 @@
 import json
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 from typing import List
 
 @dataclass
 class Idea:
-    id: int
     name: str
-    progress: int
-
-@dataclass
-class Update:
-    idea: Idea
-    market_trends: List[str]
-    user_needs: List[str]
+    search_volume: int
+    competition: int
+    willingness_to_pay: int
 
 class IdeaLuminate:
     def __init__(self):
         self.ideas = []
-        self.market_trends = []
-        self.user_needs = []
 
     def add_idea(self, idea: Idea):
         self.ideas.append(idea)
 
-    def add_market_trend(self, trend: str):
-        self.market_trends.append(trend)
+    def get_ideas(self):
+        return self.ideas
 
-    def add_user_need(self, need: str):
-        self.user_needs.append(need)
+    def sort_ideas_by_search_volume(self):
+        return sorted(self.ideas, key=lambda x: x.search_volume)
 
-    def get_update(self, idea_id: int) -> Update:
-        idea = next((i for i in self.ideas if i.id == idea_id), None)
-        if idea is None:
-            raise ValueError("Idea not found")
-        return Update(idea, self.market_trends, self.user_needs)
+    def sort_ideas_by_competition(self):
+        return sorted(self.ideas, key=lambda x: x.competition)
 
-    def send_update(self, idea_id: int) -> str:
-        update = self.get_update(idea_id)
-        return json.dumps({
-            "idea": {
-                "id": update.idea.id,
-                "name": update.idea.name,
-                "progress": update.idea.progress
-            },
-            "market_trends": update.market_trends,
-            "user_needs": update.user_needs
-        })
+    def sort_ideas_by_willingness_to_pay(self):
+        return sorted(self.ideas, key=lambda x: x.willingness_to_pay)
 
-    def schedule_update(self, idea_id: int, interval: int = 7) -> datetime:
-        idea = next((i for i in self.ideas if i.id == idea_id), None)
-        if idea is None:
-            raise ValueError("Idea not found")
-        return datetime.now() + timedelta(days=interval)
+    def get_validation_metrics(self, idea_name: str):
+        for idea in self.ideas:
+            if idea.name == idea_name:
+                return {
+                    "search_volume": idea.search_volume,
+                    "competition": idea.competition,
+                    "willingness_to_pay": idea.willingness_to_pay
+                }
+        return None
