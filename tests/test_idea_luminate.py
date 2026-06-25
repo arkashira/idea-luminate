@@ -1,41 +1,53 @@
+from datetime import datetime
+from idea_luminate import Idea, IdeaLuminate, Update
+import json
 import pytest
-from unittest.mock import patch
-from io import StringIO
-from idea_luminate import IdeaLuminate, Idea
 
-@pytest.fixture
-def idea_luminate():
-    return IdeaLuminate()
+def test_add_idea():
+    idea_luminate = IdeaLuminate()
+    idea = Idea(1, "Test Idea", 50)
+    idea_luminate.add_idea(idea)
+    assert len(idea_luminate.ideas) == 1
 
-def test_validate_input_valid(idea_luminate):
-    assert idea_luminate.validate_input("Hello World") == True
+def test_get_update():
+    idea_luminate = IdeaLuminate()
+    idea = Idea(1, "Test Idea", 50)
+    idea_luminate.add_idea(idea)
+    idea_luminate.add_market_trend("Trend 1")
+    idea_luminate.add_user_need("Need 1")
+    update = idea_luminate.get_update(1)
+    assert isinstance(update, Update)
+    assert update.idea.id == 1
+    assert update.market_trends == ["Trend 1"]
+    assert update.user_needs == ["Need 1"]
 
-def test_validate_input_empty(idea_luminate):
-    assert idea_luminate.validate_input("") == False
+def test_send_update():
+    idea_luminate = IdeaLuminate()
+    idea = Idea(1, "Test Idea", 50)
+    idea_luminate.add_idea(idea)
+    idea_luminate.add_market_trend("Trend 1")
+    idea_luminate.add_user_need("Need 1")
+    update = idea_luminate.send_update(1)
+    update_json = json.loads(update)
+    assert update_json["idea"]["id"] == 1
+    assert update_json["idea"]["name"] == "Test Idea"
+    assert update_json["idea"]["progress"] == 50
+    assert update_json["market_trends"] == ["Trend 1"]
+    assert update_json["user_needs"] == ["Need 1"]
 
-def test_validate_input_too_long(idea_luminate):
-    assert idea_luminate.validate_input("a" * 201) == False
+def test_schedule_update():
+    idea_luminate = IdeaLuminate()
+    idea = Idea(1, "Test Idea", 50)
+    idea_luminate.add_idea(idea)
+    scheduled_date = idea_luminate.schedule_update(1)
+    assert isinstance(scheduled_date, datetime)
 
-def test_ask_question_valid(idea_luminate):
-    with patch("builtins.input", return_value="Hello World"):
-        assert idea_luminate.ask_question("What is your name? ") == "Hello World"
+def test_get_update_idea_not_found():
+    idea_luminate = IdeaLuminate()
+    with pytest.raises(ValueError):
+        idea_luminate.get_update(1)
 
-def test_ask_question_invalid(idea_luminate):
-    with patch("builtins.input", side_effect=["", "Hello World"]):
-        assert idea_luminate.ask_question("What is your name? ") == "Hello World"
-
-def test_run_wizard(idea_luminate):
-    with patch("builtins.input", side_effect=["Problem", "Target User", "Pain Severity", "Existing Solutions", "Unique Angle"]):
-        idea = idea_luminate.run_wizard()
-        assert isinstance(idea, Idea)
-        assert idea.problem == "Problem"
-        assert idea.target_user == "Target User"
-        assert idea.pain_severity == "Pain Severity"
-        assert idea.existing_solutions == "Existing Solutions"
-        assert idea.unique_angle == "Unique Angle"
-
-def test_display_summary(idea_luminate):
-    idea = Idea("Problem", "Target User", "Pain Severity", "Existing Solutions", "Unique Angle")
-    with patch("sys.stdout", new=StringIO()) as fake_stdout:
-        idea_luminate.display_summary(idea)
-        assert fake_stdout.getvalue() == "Summary:\nProblem: Problem\nTarget User: Target User\nPain Severity: Pain Severity\nExisting Solutions: Existing Solutions\nUnique Angle: Unique Angle\n"
+def test_schedule_update_idea_not_found():
+    idea_luminate = IdeaLuminate()
+    with pytest.raises(ValueError):
+        idea_luminate.schedule_update(1)

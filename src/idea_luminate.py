@@ -1,65 +1,55 @@
 import json
 from dataclasses import dataclass
-from typing import Dict
+from datetime import datetime, timedelta
+from typing import List
 
 @dataclass
 class Idea:
-    problem: str
-    target_user: str
-    pain_severity: str
-    existing_solutions: str
-    unique_angle: str
+    id: int
+    name: str
+    progress: int
+
+@dataclass
+class Update:
+    idea: Idea
+    market_trends: List[str]
+    user_needs: List[str]
 
 class IdeaLuminate:
     def __init__(self):
-        self.steps = [
-            "Problem",
-            "Target User",
-            "Pain Severity",
-            "Existing Solutions",
-            "Unique Angle"
-        ]
-        self.current_step = 0
-        self.idea = Idea("", "", "", "", "")
+        self.ideas = []
+        self.market_trends = []
+        self.user_needs = []
 
-    def validate_input(self, input_str: str) -> bool:
-        return input_str.strip() != "" and len(input_str) <= 200
+    def add_idea(self, idea: Idea):
+        self.ideas.append(idea)
 
-    def ask_question(self, question: str) -> str:
-        while True:
-            user_input = input(question)
-            if self.validate_input(user_input):
-                return user_input
-            print("Invalid input. Please enter a non-empty string with a maximum of 200 characters.")
+    def add_market_trend(self, trend: str):
+        self.market_trends.append(trend)
 
-    def run_wizard(self) -> Idea:
-        for i, step in enumerate(self.steps):
-            self.current_step = i
-            if step == "Problem":
-                self.idea.problem = self.ask_question("What is the problem you're trying to solve? ")
-            elif step == "Target User":
-                self.idea.target_user = self.ask_question("Who is the target user for this solution? ")
-            elif step == "Pain Severity":
-                self.idea.pain_severity = self.ask_question("How severe is the pain point for the target user? ")
-            elif step == "Existing Solutions":
-                self.idea.existing_solutions = self.ask_question("What existing solutions are there for this problem? ")
-            elif step == "Unique Angle":
-                self.idea.unique_angle = self.ask_question("What's the unique angle for your solution? ")
-            print(f"Step {i+1} of {len(self.steps)} completed.")
-        return self.idea
+    def add_user_need(self, need: str):
+        self.user_needs.append(need)
 
-    def display_summary(self, idea: Idea) -> None:
-        print("Summary:")
-        print(f"Problem: {idea.problem}")
-        print(f"Target User: {idea.target_user}")
-        print(f"Pain Severity: {idea.pain_severity}")
-        print(f"Existing Solutions: {idea.existing_solutions}")
-        print(f"Unique Angle: {idea.unique_angle}")
+    def get_update(self, idea_id: int) -> Update:
+        idea = next((i for i in self.ideas if i.id == idea_id), None)
+        if idea is None:
+            raise ValueError("Idea not found")
+        return Update(idea, self.market_trends, self.user_needs)
 
-def main() -> None:
-    idea_luminate = IdeaLuminate()
-    idea = idea_luminate.run_wizard()
-    idea_luminate.display_summary(idea)
+    def send_update(self, idea_id: int) -> str:
+        update = self.get_update(idea_id)
+        return json.dumps({
+            "idea": {
+                "id": update.idea.id,
+                "name": update.idea.name,
+                "progress": update.idea.progress
+            },
+            "market_trends": update.market_trends,
+            "user_needs": update.user_needs
+        })
 
-if __name__ == "__main__":
-    main()
+    def schedule_update(self, idea_id: int, interval: int = 7) -> datetime:
+        idea = next((i for i in self.ideas if i.id == idea_id), None)
+        if idea is None:
+            raise ValueError("Idea not found")
+        return datetime.now() + timedelta(days=interval)
