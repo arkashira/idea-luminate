@@ -1,14 +1,11 @@
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
-
-[tool.poetry]
+[tool.pyproject]
 name = "idea-luminate"
-version = "1.0.0"
-description = ""
+version = "0.1.0"
+description = "Idea validation tool for indie hackers"
+readme = "README.md"
 
-[tool.poetry.dependencies]
-python = "^3.8"
+[tool.setuptools]
+packages = ["idea_luminate"]
 
-[tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
+[tool.pytest.ini_options]
+testpaths = ["tests"]

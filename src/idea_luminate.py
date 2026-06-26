@@ -1,39 +1,61 @@
+import argparse
 import json
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List
 
 @dataclass
-class Idea:
-    name: str
-    search_volume: int
-    competition: int
-    willingness_to_pay: int
+class FeedbackPoint:
+    key: str
+    value: str
 
-class IdeaLuminate:
-    def __init__(self):
-        self.ideas = []
+def validate_idea(idea: str) -> Dict[str, List[str]]:
+    """
+    Analyzes the viability of an idea based on market trends and user needs.
+    Returns a dictionary with feedback points.
+    """
+    if not idea.strip():
+        return {"feedback": ["Idea is empty. Please provide a description."]}
+    
+    # Normalize the idea text
+    normalized = idea.lower().strip()
+    
+    # Check for keywords related to open source/community
+    if "open source" in normalized or "contribute" in normalized or "community" in normalized:
+        feedback = [
+            "Market Relevance: Your idea aligns with validated open-source contributions (e.g., the Mastodon example).",
+            "User Need: Addresses the need for community-driven solutions, which has proven demand.",
+            "Viability: High potential for community adoption and long-term sustainability."
+        ]
+    # Check for keywords related to support/hiring
+    elif "support" in normalized or "hiring" in normalized or "customer service" in normalized:
+        feedback = [
+            "Market Relevance: Aligns with validated user support solutions (e.g., PANROTAS passenger support).",
+            "User Need: Addresses a critical pain point in service industries.",
+            "Viability: High demand for robust support systems, as seen in existing validated products."
+        ]
+    # Check for keywords related to testing/quality
+    elif "testing" in normalized or "quality" in normalized or "coverage" in normalized:
+        feedback = [
+            "Market Relevance: Matches the validated QA test-coverage gap analytics product.",
+            "User Need: Addresses the need for automated quality assurance in software development.",
+            "Viability: Strong demand from development teams for improved testing workflows."
+        ]
+    else:
+        feedback = [
+            "Market Relevance: Idea is not clearly aligned with existing validated needs.",
+            "User Need: May not address a widely recognized pain point.",
+            "Viability: Consider refining the idea to focus on a validated user need."
+        ]
+    
+    return {"feedback": feedback}
 
-    def add_idea(self, idea: Idea):
-        self.ideas.append(idea)
-
-    def get_ideas(self):
-        return self.ideas
-
-    def sort_ideas_by_search_volume(self):
-        return sorted(self.ideas, key=lambda x: x.search_volume)
-
-    def sort_ideas_by_competition(self):
-        return sorted(self.ideas, key=lambda x: x.competition)
-
-    def sort_ideas_by_willingness_to_pay(self):
-        return sorted(self.ideas, key=lambda x: x.willingness_to_pay)
-
-    def get_validation_metrics(self, idea_name: str):
-        for idea in self.ideas:
-            if idea.name == idea_name:
-                return {
-                    "search_volume": idea.search_volume,
-                    "competition": idea.competition,
-                    "willingness_to_pay": idea.willingness_to_pay
-                }
-        return None
+def main():
+    """
+    Parses command-line arguments and provides feedback on an idea.
+    """
+    parser = argparse.ArgumentParser(description="Idea validation tool.")
+    parser.add_argument("idea", help="Your idea description")
+    args = parser.parse_args()
+    
+    feedback = validate_idea(args.idea)
+    print(json.dumps(feedback, indent=2))

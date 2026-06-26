@@ -1,64 +1,35 @@
-from idea_luminate import Idea, IdeaLuminate
+import pytest
+from src.idea_luminate import validate_idea
 
-def test_add_idea():
-    idea_luminate = IdeaLuminate()
-    idea = Idea("Test Idea", 100, 50, 20)
-    idea_luminate.add_idea(idea)
-    assert len(idea_luminate.get_ideas()) == 1
+def test_validate_idea_open_source():
+    idea = "I want to create an open-source project to help indie hackers contribute to the community."
+    result = validate_idea(idea)
+    assert result["feedback"][0] == "Market Relevance: Your idea aligns with validated open-source contributions (e.g., the Mastodon example)."
+    assert result["feedback"][1] == "User Need: Addresses the need for community-driven solutions, which has proven demand."
+    assert result["feedback"][2] == "Viability: High potential for community adoption and long-term sustainability."
 
-def test_get_ideas():
-    idea_luminate = IdeaLuminate()
-    idea1 = Idea("Test Idea 1", 100, 50, 20)
-    idea2 = Idea("Test Idea 2", 200, 60, 30)
-    idea_luminate.add_idea(idea1)
-    idea_luminate.add_idea(idea2)
-    ideas = idea_luminate.get_ideas()
-    assert len(ideas) == 2
-    assert ideas[0].name == "Test Idea 1"
-    assert ideas[1].name == "Test Idea 2"
+def test_validate_idea_support():
+    idea = "Develop a support system for a service like PANROTAS to improve customer interactions."
+    result = validate_idea(idea)
+    assert result["feedback"][0] == "Market Relevance: Aligns with validated user support solutions (e.g., PANROTAS passenger support)."
+    assert result["feedback"][1] == "User Need: Addresses a critical pain point in service industries."
+    assert result["feedback"][2] == "Viability: High demand for robust support systems, as seen in existing validated products."
 
-def test_sort_ideas_by_search_volume():
-    idea_luminate = IdeaLuminate()
-    idea1 = Idea("Test Idea 1", 100, 50, 20)
-    idea2 = Idea("Test Idea 2", 200, 60, 30)
-    idea_luminate.add_idea(idea1)
-    idea_luminate.add_idea(idea2)
-    sorted_ideas = idea_luminate.sort_ideas_by_search_volume()
-    assert sorted_ideas[0].name == "Test Idea 1"
-    assert sorted_ideas[1].name == "Test Idea 2"
+def test_validate_idea_testing():
+    idea = "Create a tool to analyze test coverage gaps in production code."
+    result = validate_idea(idea)
+    assert result["feedback"][0] == "Market Relevance: Matches the validated QA test-coverage gap analytics product."
+    assert result["feedback"][1] == "User Need: Addresses the need for automated quality assurance in software development."
+    assert result["feedback"][2] == "Viability: Strong demand from development teams for improved testing workflows."
 
-def test_sort_ideas_by_competition():
-    idea_luminate = IdeaLuminate()
-    idea1 = Idea("Test Idea 1", 100, 50, 20)
-    idea2 = Idea("Test Idea 2", 200, 60, 30)
-    idea_luminate.add_idea(idea1)
-    idea_luminate.add_idea(idea2)
-    sorted_ideas = idea_luminate.sort_ideas_by_competition()
-    assert sorted_ideas[0].name == "Test Idea 1"
-    assert sorted_ideas[1].name == "Test Idea 2"
+def test_validate_idea_empty():
+    idea = ""
+    result = validate_idea(idea)
+    assert result["feedback"][0] == "Idea is empty. Please provide a description."
 
-def test_sort_ideas_by_willingness_to_pay():
-    idea_luminate = IdeaLuminate()
-    idea1 = Idea("Test Idea 1", 100, 50, 20)
-    idea2 = Idea("Test Idea 2", 200, 60, 30)
-    idea_luminate.add_idea(idea1)
-    idea_luminate.add_idea(idea2)
-    sorted_ideas = idea_luminate.sort_ideas_by_willingness_to_pay()
-    assert sorted_ideas[0].name == "Test Idea 1"
-    assert sorted_ideas[1].name == "Test Idea 2"
-
-def test_get_validation_metrics():
-    idea_luminate = IdeaLuminate()
-    idea = Idea("Test Idea", 100, 50, 20)
-    idea_luminate.add_idea(idea)
-    metrics = idea_luminate.get_validation_metrics("Test Idea")
-    assert metrics == {
-        "search_volume": 100,
-        "competition": 50,
-        "willingness_to_pay": 20
-    }
-
-def test_get_validation_metrics_non_existent_idea():
-    idea_luminate = IdeaLuminate()
-    metrics = idea_luminate.get_validation_metrics("Non Existent Idea")
-    assert metrics is None
+def test_validate_idea_no_keywords():
+    idea = "I want to build a social media app."
+    result = validate_idea(idea)
+    assert result["feedback"][0] == "Market Relevance: Idea is not clearly aligned with existing validated needs."
+    assert result["feedback"][1] == "User Need: May not address a widely recognized pain point."
+    assert result["feedback"][2] == "Viability: Consider refining the idea to focus on a validated user need."
